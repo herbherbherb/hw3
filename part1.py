@@ -42,19 +42,54 @@ def main():
 	with open('testimages') as f:
 		content = f.readlines()
 
-	poss_laplace = [0.1, 0.5, 1, 2, 3, 5, 10]
+	poss_laplace = [0.1, 0.5, 1, 3, 5]
 	for i in range(len(poss_laplace)):
 		start_time = time.time()
 		NavieClassify(content, NavieDic, testresult, trainingset, trainingprior, poss_laplace[i])
+
 		end = time.time()
 		correct_predicted = len([i for i, j in zip(testlabels, testresult) if i == j])
+
 		Accuracy_rate = (correct_predicted/len(testlabels))*100
-		print("Accuracy (Laplace = ", poss_laplace[i], "): ", Accuracy_rate, "%")
+		print("Total Accuracy (Laplace = ", poss_laplace[i], "): ", Accuracy_rate, "%")
+		report_digit_accuracy(testresult, testlabels)
 		print("Testing Time: ", end - start_time)
+		print()
 		testresult = []
 
+def report_digit_accuracy(testresult, testlabels):
+	digit = np.zeros((10))
+	correct_digit = np.zeros((10))
 
-					
+	confusion = np.zeros((10, 10))
+
+	for i in range(len(testresult)):
+		digit[testlabels[i]] += 1
+		if testresult[i] == testlabels[i]:
+			correct_digit[testlabels[i]] += 1 
+
+		confusion[testlabels[i]][testresult[i]] += 1
+
+
+
+	print("Classification Rate for Digits 0 ~ 9:")
+	for i in range(10):
+		print(i, ": ", "{0:.2f}".format(100*correct_digit[i]/digit[i]), "%", end = "  ")
+		if i == 3 or i == 6:
+			print()
+	print()
+	confusion_mtx(testresult, testlabels, digit, confusion)
+
+def confusion_mtx(testresult, testlabels, digit, confusion):
+	for i in range(10):
+		confusion[i, :] /= digit[i]
+	print()
+	np.set_printoptions(precision=3)
+	print(confusion)
+	print()
+
+
+
 def Building(content, traininglabels, NavieDic):
 	for i in range(int(len(content)/28)):
 		cur_label = traininglabels[i]
