@@ -5,7 +5,7 @@ from collections import defaultdict as setdefault
 import itertools
 
 alphabets = [' ', '+', '#']
-keywords = itertools.product(alphabets, repeat =16)
+keywords = itertools.product(alphabets, repeat = 9)
 comb_list = list(keywords)
 
 def main():
@@ -96,8 +96,8 @@ def Building_group_prior(content, traininglabels, NavieDic_prior):
 	class_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 	for i in range(int(len(content)/28)):
 		cur_label = traininglabels[i]
-		for row in range(i*28, (i+1)*28, 4):
-			for col in range(0, 28, 4):
+		for row in range(i*28, (i+1)*28, 3):
+			for col in range(0, 28, 3):
 				loc = (row%28, col) 			# location of that grid
 				
 				if loc not in NavieDic_prior:
@@ -113,14 +113,12 @@ def Building_group_prior(content, traininglabels, NavieDic_prior):
 def Building_group(content, traininglabels, NavieDic):
 	for i in range(int(len(content)/28)):
 		cur_label = traininglabels[i]
-		for row in range(i*28, (i+1)*28, 4):
-			for col in range(0, 28, 4):
+		for row in range(i*28, (i+1)*28-1, 3):
+			for col in range(0, 27, 3):
 
 				loc = (row%28, col) 			# location of that grid
-				cur_tuple = (content[row][col], content[row][col+1], content[row][col+2], content[row][col+3], \
-							content[row+1][col], content[row+1][col+1], content[row+1][col+2], content[row+1][col+3], \
-							content[row+2][col], content[row+2][col+1], content[row+2][col+2], content[row+2][col+3], \
-							content[row+3][col], content[row+3][col+1], content[row+3][col+2], content[row+3][col+3])
+				cur_tuple = (content[row][col], content[row][col+1], content[row][col+2], content[row+1][col], \
+								content[row+1][col+1], content[row+1][col+2], content[row+2][col], content[row+2][col+1], content[row+2][col+2])
 
 				if loc not in NavieDic:			# not in the dictionary yet
 					NavieDic.setdefault(loc, {})
@@ -135,15 +133,15 @@ def NavieClassify_group(content, NavieDic, NavieDic_prior, testresult, trainings
 	for i in range(int(len(content)/28)):
 
 		posteriori = [np.log(trainingprior[i]) for i in range(10)]
-		for row in range(i*28, (i+1)*28, 4):
-			for col in range(0, 28, 4):
+		for row in range(i*28, (i+1)*28-1, 3):
+			for col in range(0, 27, 3):
 
 
 				loc = (row%28, col) 			# location of that grid
-				cur_tuple = (content[row][col], content[row][col+1], content[row][col+2], content[row][col+3], \
-							content[row+1][col], content[row+1][col+1], content[row+1][col+2], content[row+1][col+3], \
-							content[row+2][col], content[row+2][col+1], content[row+2][col+2], content[row+2][col+3], \
-							content[row+3][col], content[row+3][col+1], content[row+3][col+2], content[row+3][col+3])
+				cur_tuple = (content[row][col], content[row][col+1], content[row][col+2], content[row+1][col], \
+							content[row+1][col+1], content[row+1][col+2], content[row+2][col], content[row+2][col+1], \
+							content[row+2][col+2])
+
 		
 				classlist = NavieDic[loc][cur_tuple]
 
