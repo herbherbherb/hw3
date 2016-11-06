@@ -4,6 +4,7 @@ import time
 from collections import defaultdict as setdefault
 import itertools
 
+# Disjoint Grids 
 alphabets = [' ', '+', '#']
 keywords = itertools.product(alphabets, repeat = 9)
 comb_list = list(keywords)
