@@ -26,56 +26,72 @@ def main():
 		arg = sys.argv[1]
 	else:
 		arg = 0
-
-	if arg == "1":
 #=======================Using Multinomial Navie Bayes===========================================
+	if arg == "1":
 		print("Multinomial Navie Bayes")
 		
-		# best_accuracy = 0
-		# best_laplace = 0
-		# for i in range(4400, 4500, 5):
-		# 	pclass = {}
-		# 	nclass = {}
-		# 	accuracy = 0
-		# 	Build_Mult(content_movie, pclass, nclass, i)
-		# 	accuracy = Classify_Mult(content_movie_testing, pclass, nclass, movie_p_prior, movie_n_prior)
-		# 	# import IPython
-		# 	# IPython.embed()
-		# 	# exit()
-
-		# 	if best_accuracy < accuracy:
-		# 		best_accuracy = accuracy
-		# 		best_laplace = i
-		# print("Best Laplace: ", best_laplace)
-		# print("Movie Reviews Accuracy: ", best_accuracy, "%")
-
-
 		best_accuracy = 0
 		best_laplace = 0
-		for i in range(100, 10000, 100):
+		c = [1, 2, 5, 10, 100, 1000, 9075]
+		for i in c:
 			pclass = {}
 			nclass = {}
 			accuracy = 0
-			Build_Mult(content_topic, pclass, nclass, i)
-			accuracy = Classify_Mult(content_topic_testing, pclass, nclass, topic_p_prior, topic_n_prior)
-			
+			Build_Mult(content_movie, pclass, nclass, i)
+			accuracy = Classify_Mult(content_movie_testing, pclass, nclass, movie_p_prior, movie_n_prior)
+			# import IPython
+			# IPython.embed()
+			# exit()
+			print("Accuracy ", i, ": ", accuracy, "%")
 			if best_accuracy < accuracy:
 				best_accuracy = accuracy
 				best_laplace = i
 		print("Best Laplace: ", best_laplace)
-		print("Binary Conversation Accuracy: ", best_accuracy, "%")
+		print("Movie Reviews Accuracy: ", best_accuracy, "%")
 
-	if arg == "2":
+
+		# best_accuracy = 0
+		# best_laplace = 0
+		# c = [1, 2, 5, 10, 100, 1000]
+		# for i in c:
+		# 	pclass = {}
+		# 	nclass = {}
+		# 	accuracy = 0
+		# 	Build_Mult(content_topic, pclass, nclass, i)
+		# 	accuracy = Classify_Mult(content_topic_testing, pclass, nclass, topic_p_prior, topic_n_prior)
+			
+		# 	if best_accuracy < accuracy:
+		# 		best_accuracy = accuracy
+		# 		best_laplace = i
+		# print("Best Laplace: ", best_laplace)
+		# print("Binary Conversation Accuracy: ", best_accuracy, "%")
+
 #=======================Using Bernoulli Navie Bayes==============================================
+	if arg == "2":
 		print("Bernoulli Navie Bayes")
-		pclass = {}
-		nclass = {}
-		word_bank = []
-		p_word_bank = []
-		n_word_bank = []
-		Build_Bernoulli(content_movie, pclass, nclass, word_bank, p_word_bank, n_word_bank, 1)
-		accuracy = Classify_Bernoulli(content_movie_testing, pclass, nclass, movie_p_prior, movie_n_prior, p_word_bank, n_word_bank, word_bank)
-		print("Movie Reviews Accuracy: ", accuracy, "%")
+		best_accuracy = 0
+		best_laplace = 0
+		c = [1, 2, 5, 10, 100, 1000, 9075]
+		for i in c:
+			pclass = {}
+			nclass = {}
+			accuracy = 0
+			word_bank = []
+			p_word_bank = []
+			n_word_bank = []
+			accuracy = 0
+			Build_Bernoulli(content_topic, pclass, nclass, word_bank, p_word_bank, n_word_bank, i)
+			accuracy = accuracy = Classify_Bernoulli(content_topic_testing, pclass, nclass, movie_p_prior, movie_n_prior, p_word_bank, n_word_bank, word_bank)
+			# import IPython
+			# IPython.embed()
+			# exit()
+			print("Accuracy ", i, ": ", accuracy, "%")
+			if best_accuracy < accuracy:
+				best_accuracy = accuracy
+				best_laplace = i
+		print("Best Laplace: ", best_laplace)
+		print("Movie Reviews Accuracy: ", best_accuracy, "%")
+
 
 		# pclass = {}
 		# nclass = {}
@@ -89,8 +105,10 @@ def main():
 def Classify_Mult(content_testing, pclass, nclass, p_prior, n_prior):
 	accuracy = 0
 	for line in content_testing:
-		pclass_value = np.abs(np.log(p_prior))
-		nclass_value = np.abs(np.log(n_prior))
+		# pclass_value = np.log(p_prior)
+		# nclass_value = np.log(n_prior)
+		pclass_value = 0
+		nclass_value = 0
 
 		testlabels = -1
 		if line[0] == "1":
@@ -104,20 +122,18 @@ def Classify_Mult(content_testing, pclass, nclass, p_prior, n_prior):
 			count = i.split(':')[1]
 
 			if word in pclass:
-				pclass_value *= (pclass[word])**int(count)
-				
+				pclass_value += (pclass[word]) * int(count)
 			if word in nclass:
-				nclass_value *= (nclass[word])**int(count)
+				nclass_value += (nclass[word]) * int(count)
 		
 		if pclass_value > nclass_value and testlabels == 1:
 			accuracy += 1
 	
 		if nclass_value > pclass_value and testlabels == -1:
 			accuracy += 1
-
-	import IPython
-	IPython.embed()
-	exit()
+		# import IPython
+		# IPython.embed()
+		# exit()
 
 	accuracy /= len(content_testing)
 	return (accuracy * 100)
@@ -127,8 +143,6 @@ def Build_Mult(content, pclass, nclass, laplace):
 
 	pclass_total = 0
 	nclass_total = 0
-	pclass_unique = 0
-	nclass_unique = 0
 	total_unique = []
 	
 	for line in content:
@@ -139,16 +153,13 @@ def Build_Mult(content, pclass, nclass, laplace):
 				count = i.split(':')[1]
 
 				pclass_total += int(count)
-
-				# if word not in set(total_unique):
-				# 	total_unique.extend([word])
-
 				if word not in pclass and count != 0:
-					pclass_unique += 1
 					pclass[word] = int(count)
 				else:
 					pclass[word] += int(count)
 
+				if word not in set(total_unique):
+					total_unique.extend([word])
 		else:
 			line = line[3:]
 			for i in line.split(' '):
@@ -156,34 +167,25 @@ def Build_Mult(content, pclass, nclass, laplace):
 				count = i.split(':')[1]
 
 				nclass_total += int(count)
-
-				# if word not in set(total_unique):
-				# 	total_unique.extend([word])
-
 				if word not in nclass and count != 0:
-					nclass_unique += 1
 					nclass[word] = int(count)
 				else:
 					nclass[word] += int(count)
 
+				if word not in set(total_unique):
+					total_unique.extend([word])
 
 	for word in pclass:
 		count = pclass[word]
 		count += laplace
-		# count /= (pclass_total + laplace * len(total_unique))
-		count /= (pclass_total + laplace * pclass_unique)
-		pclass[word] = np.abs(np.log10(count))
+		count /= (pclass_total + laplace * len(total_unique))
+		pclass[word] = np.log10(count)
 	
 	for word in nclass:
 		count = nclass[word]
 		count += laplace
-		# count /= (nclass_total + laplace * len(total_unique))
-		count /= (nclass_total + laplace * nclass_unique)
-		nclass[word] = np.abs(np.log10(count))
-
-	# import IPython
-	# IPython.embed()
-	# exit()
+		count /= (nclass_total + laplace * len(total_unique))
+		nclass[word] = np.log10(count)
 
 def Classify_Bernoulli(content_testing, pclass, nclass, p_prior, n_prior, p_word_bank, n_word_bank, word_bank):
 	accuracy = 0
@@ -205,20 +207,16 @@ def Classify_Bernoulli(content_testing, pclass, nclass, p_prior, n_prior, p_word
 			if word not in word_bank:
 				continue
 
-			if word in set(p_word_bank):
-				count = pclass[word]
-				pclass_value *= np.abs(np.log(count))
-			else:
-				count = 1 - pclass[word]
-				pclass_value *= np.abs(np.log(count))
-
-
-			if word in set(n_word_bank):
-				count = nclass[word]
-				nclass_value *= np.abs(np.log(count))
-			else:
-				count = 1 - nclass[word]
-				nclass_value *= np.abs(np.log(count))
+			if word in pclass:
+				pclass_value += pclass[word]
+			# else:
+			# 	count = 1 - pclass[word]
+			# 	pclass_value *= np.abs(np.log(count))
+			if word in nclass:
+				nclass_value += nclass[word]
+			# else:
+			# 	count = 1 - nclass[word]
+			# 	nclass_value *= np.abs(np.log(count))
 
 		if pclass_value > nclass_value and testlabels == 1:
 			accuracy += 1
@@ -230,7 +228,6 @@ def Classify_Bernoulli(content_testing, pclass, nclass, p_prior, n_prior, p_word
 	return accuracy * 100
 			
 def Build_Bernoulli(content, pclass, nclass, word_bank, p_word_bank, n_word_bank, laplace):
-
 	for line in content:
 		if line[0] == "1":
 			line = line[2:]
@@ -238,7 +235,6 @@ def Build_Bernoulli(content, pclass, nclass, word_bank, p_word_bank, n_word_bank
 				word = i.split(':')[0]
 				count = i.split(':')[1]
 				if word not in pclass and count != 0:
-					p_word_bank.extend([word])
 					pclass[word] = 1
 				else:
 					pclass[word] += 1
@@ -252,7 +248,6 @@ def Build_Bernoulli(content, pclass, nclass, word_bank, p_word_bank, n_word_bank
 				word = i.split(':')[0]	
 				count = i.split(':')[1]
 				if word not in nclass and count != 0:
-					n_word_bank.extend([word])
 					nclass[word] = 1
 				else:
 					nclass[word] += 1
@@ -264,17 +259,19 @@ def Build_Bernoulli(content, pclass, nclass, word_bank, p_word_bank, n_word_bank
 		if word in p_word_bank:
 			count = pclass[word]
 			count += laplace
-			count /= (440 + laplace * len(p_word_bank)) 
-			pclass[word] = count
+			count /= (440 + laplace * len(word_bank)) 
+			pclass[word] = np.log10(count)
 		else:
-			pclass[word] = laplace/(440 + laplace * len(p_word_bank)) 
+			count = laplace/(440 + laplace * len(word_bank))
+			pclass[word] = np.log10(count)
 
 		if word in n_word_bank:
 			count = pclass[word]
 			count += laplace
-			count /= (438 + laplace * len(n_word_bank))
-			nclass[word] = count
+			count /= (438 + laplace * len(word_bank))
+			nclass[word] = np.log10(count)
 		else:
-			nclass[word] = laplace/(438 + laplace * len(n_word_bank)) 
+			count = laplace/(438 + laplace * len(word_bank))
+			nclass[word] = np.log10(count)
 
 main()
