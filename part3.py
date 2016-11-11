@@ -3,8 +3,7 @@ from copy import copy, deepcopy
 import time, sys
 from collections import defaultdict as setdefault
 import itertools
-
-
+import ipdb
 def main():
 	with open('rt-train.txt') as f:
 			content_movie = f.readlines()
@@ -121,6 +120,7 @@ def Classify_Mult(content_testing, pclass, nclass, p_prior, n_prior):
 			word = i.split(':')[0]
 			count = i.split(':')[1]
 
+			ipdb.set_trace()
 			if word in pclass:
 				pclass_value += (pclass[word]) * int(count)
 			if word in nclass:
