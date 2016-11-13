@@ -137,31 +137,42 @@ def confusion_mtx(testlabels, testresult, pclass, nclass, word_bank):
 			else:
 				confusion[2, 2] += 1
 
-	confusion[1:, 1:] /= len(testresult) 
+	confusion[1:, 1:] /= len(testresult)
+	np.set_printoptions(precision=3)
 	print(confusion)
 #=====================Top 10 Liklihood Words===================================
 	sorted_p = sorted(pclass.items(), key=operator.itemgetter(1), reverse = True)
 	sorted_n = sorted(nclass.items(), key=operator.itemgetter(1), reverse = True)
-	np.set_printoptions(precision=3)
-	print("Top 10 words with highest likelihood in positive class :")
+
+	print("Top 10 Words with Highest Likelihood in Positive Class :")
 	for i in range(10):
+		np.set_printoptions(precision=3)
 		print(sorted_p[i], end = " ")
 		if i == 1 or i == 3 or i == 5 or i == 7 or i == 9:
 			print()
 	print()
-	print("Top 10 words with highest likelihood in negative class :")
+	print("Top 10 Words with Highest Likelihood in Negative Class  :")
 	for i in range(10):
+		np.set_printoptions(precision=3)
 		print(sorted_n[i], end = " ")
 		if i == 1 or i == 3 or i == 5 or i == 7 or i == 9:
 			print()
+	print()
 #=========================Top 10 Odd Ratio======================================
+	print("Top 10 Odd Ratio:")
 	odd_ratio = []
 	for i in range(len(word_bank)):
 		cur_word = word_bank[i]
 		ratio = pclass[cur_word] / nclass[cur_word]
 		odd_ratio.extend([(cur_word, ratio)])
+
 	odd_ratio = sorted(odd_ratio, key=lambda x: x[1], reverse= True)
-	
+
+	for i in range(10):
+		np.set_printoptions(precision=3)
+		print(odd_ratio[i], end = " ")
+		if i == 1 or i == 3 or i == 5 or i == 7 or i == 9:
+			print()
 
 
 def Classify_Mult(content_testing, pclass, nclass, p_prior, n_prior, testlabels, testresult):
