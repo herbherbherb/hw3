@@ -2,79 +2,267 @@ import numpy as np
 from copy import copy, deepcopy
 import time, sys
 from collections import defaultdict as setdefault
-import itertools
-
-
+import itertools, operator
+import pdb
 def main():
+	with open('rt-train.txt') as f:
+			content_movie = f.readlines()
+	with open('rt-test.txt') as f:
+			content_movie_testing = f.readlines()
+
+	with open('fisher_train_2topic.txt') as f:
+			content_topic = f.readlines()
+	with open('fisher_test_2topic.txt') as f:
+			content_topic_testing = f.readlines()
+
+	movie_p_prior = movie_n_prior = 0.5
+	topic_p_prior = (440 / 878)
+	topic_n_prior = (438 / 878)	
+	# print(topic_p_prior)
+	# print(topic_n_prior)
+
 	if len(sys.argv) > 1:
 		arg = sys.argv[1]
 	else:
 		arg = 0
-
+#=======================Using Multinomial Navie Bayes===========================================
 	if arg == "1":
-#=======================Part2.1===========================================
-		accuracy = 0
-		with open('rt-train.txt') as f:
-			content = f.readlines()
-		with open('rt-test.txt') as f:
-			content_testing = f.readlines()
+		print("Multinomial Navie Bayes")
+		
+		# best_accuracy = 0
+		# best_laplace = 0
+		# c = [2]
+		# for i in c:
+		# 	testlabels = []
+		# 	testresult = []
+		# 	pclass = {}
+		# 	nclass = {}
+		# 	accuracy = 0
+		# 	Build_Mult(content_movie, pclass, nclass, i)
+		# 	accuracy = Classify_Mult(content_movie_testing, pclass, nclass, \
+		# 					movie_p_prior, movie_n_prior, testlabels, testresult, word_bank)
+			
+		# 	confusion_mtx(testlabels, testresult, pclass, nclass)
+
+		# 	print("Accuracy ", i, ": ", accuracy, "%")
+		# 	if best_accuracy < accuracy:
+		# 		best_accuracy = accuracy
+		# 		best_laplace = i
+		# print("Best Laplace: ", best_laplace)
+		# print("Movie Reviews Accuracy: ", best_accuracy, "%")
 
 
-		adjust_value = 0
-		best_laplace = 0
 		best_accuracy = 0
-			# 9000, 10000, 5
-		for i in range(9060, 9080, 1):
+		best_laplace = 0
+		c = [0.5, 1, 2, 5, 10, 100, 1000, 5000]
+		for i in c:
+			testlabels = []
+			testresult = []
+			total_unique = []
 			pclass = {}
 			nclass = {}
-			pclass_total = 0
-			nclass_total = 0		
-			pclass_unique = 0
-			nclass_unique = 0
-			BuildDic(content, pclass, nclass, pclass_total, nclass_total, pclass_unique, nclass_unique, i)
+			accuracy = 0
+			Build_Mult(content_topic, pclass, nclass, i, total_unique)
+			accuracy = Classify_Mult(content_topic_testing, pclass, nclass, \
+							topic_p_prior, topic_n_prior, testlabels, testresult)
 
-			
-			accuracy = Classify(content_testing, accuracy, pclass, nclass, pclass_total, nclass_total, pclass_unique, nclass_unique)
+			confusion_mtx(testlabels, testresult, pclass, nclass, total_unique)
+
+			print("Accuracy ", i, ": ", accuracy, "%")
 			if best_accuracy < accuracy:
 				best_accuracy = accuracy
 				best_laplace = i
-		print("Laplace Value: ", best_laplace)
-		print("The Accuracy is: ", best_accuracy, "%")
+		print("Best Laplace: ", best_laplace)
+		print("Binary Conversation Accuracy: ", best_accuracy, "%")
 
-#=======================Part2.2===========================================
+#=======================Using Bernoulli Navie Bayes==============================================
 	if arg == "2":
-		with open('fisher_train_2topic.txt') as f:
-			content = f.readlines()
-		with open('fisher_test_2topic.txt') as f:
-			content_testing = f.readlines()
-
-		adjust_value = 0
-		best_laplace = 0
+		print("Bernoulli Navie Bayes")
+		
 		best_accuracy = 0
-
-		for i in range(3, 10 ,1):
+		best_laplace = 0
+		c = [4.73, 4.76, 4.79]
+		for i in c:
 			pclass = {}
 			nclass = {}
-			pclass_total = 0
-			nclass_total = 0		
-			pclass_unique = 0
-			nclass_unique = 0
-			p_prior, n_prior, pclass_unique, nclass_unique = BuildDicFisher(content, pclass, nclass, pclass_total, nclass_total, pclass_unique, nclass_unique)
-
-			
-			accuracy = ClassifyFisher(content_testing, pclass, nclass, pclass_total, nclass_total, pclass_unique, nclass_unique, p_prior, n_prior, i)
+			accuracy = 0
+			word_bank = []
+			p_word_bank = []
+			n_word_bank = []
+			accuracy = 0
+			Build_Bernoulli(content_movie, pclass, nclass, word_bank, p_word_bank, n_word_bank, i)
+			accuracy = accuracy = Classify_Bernoulli(content_movie_testing, pclass, nclass, movie_p_prior, movie_n_prior, p_word_bank, n_word_bank, word_bank, i)
+		
+			print("Accuracy ", i, ": ", accuracy, "%")
 			if best_accuracy < accuracy:
 				best_accuracy = accuracy
 				best_laplace = i
-		print("Laplace Value: ", best_laplace)
-		print("The Accuracy is: ", best_accuracy, "%")
+		print("Best Laplace: ", best_laplace)
+		print("Movie Reviews Accuracy: ", best_accuracy, "%")
 
-def ClassifyFisher(content_testing, pclass, nclass, pclass_total, nclass_total, pclass_unique, nclass_unique, p_prior, n_prior, laplace):
+
+		best_accuracy = 0
+		best_laplace = 0
+		c = [4.0, 4.2, 4.5, 4.8, 5]
+		for i in c:
+			pclass = {}
+			nclass = {}
+			word_bank = []
+			p_word_bank = []
+			n_word_bank = []
+			Build_Bernoulli(content_topic, pclass, nclass, word_bank, p_word_bank, n_word_bank, 1)
+			accuracy = Classify_Bernoulli(content_topic_testing, pclass, nclass, movie_p_prior, movie_n_prior, p_word_bank, n_word_bank, word_bank, 1)
+			
+			print("Accuracy ", i, ": ", accuracy, "%")
+			if best_accuracy < accuracy:
+				best_accuracy = accuracy
+				best_laplace = i
+		print("Best Laplace: ", best_laplace)
+		print("Binary Conversation Accuracy: ", best_accuracy, "%")
+
+def confusion_mtx(testlabels, testresult, pclass, nclass, word_bank):
+#====================Confusion Matrix========================================
+	confusion = np.zeros((3, 3))
+	confusion[0, 1:] = [1, -1]
+	confusion[1:, 0] = [1, -1]
+	for i in range(len(testlabels)):
+		if testlabels[i] == 1:
+			if testresult[i] == 1:
+				confusion[1, 1] += 1
+			else:
+				confusion[1, 2] += 1
+		else:
+			if testresult[i] == 1:
+				confusion[2, 1] += 1
+			else:
+				confusion[2, 2] += 1
+
+	confusion[1:, 1:] /= len(testresult) 
+	print(confusion)
+#=====================Top 10 Liklihood Words===================================
+	sorted_p = sorted(pclass.items(), key=operator.itemgetter(1), reverse = True)
+	sorted_n = sorted(nclass.items(), key=operator.itemgetter(1), reverse = True)
+	np.set_printoptions(precision=3)
+	print("Top 10 words with highest likelihood in positive class :")
+	for i in range(10):
+		print(sorted_p[i], end = " ")
+		if i == 1 or i == 3 or i == 5 or i == 7 or i == 9:
+			print()
+	print()
+	print("Top 10 words with highest likelihood in negative class :")
+	for i in range(10):
+		print(sorted_n[i], end = " ")
+		if i == 1 or i == 3 or i == 5 or i == 7 or i == 9:
+			print()
+#=========================Top 10 Odd Ratio======================================
+	odd_ratio = []
+	for i in range(len(word_bank)):
+		cur_word = word_bank[i]
+		ratio = pclass[cur_word] / nclass[cur_word]
+		odd_ratio.extend([(cur_word, ratio)])
+	odd_ratio = sorted(odd_ratio, key=lambda x: x[1], reverse= True)
+	
+
+
+def Classify_Mult(content_testing, pclass, nclass, p_prior, n_prior, testlabels, testresult):
 	accuracy = 0
-
 	for line in content_testing:
-		pclass_value = p_prior
-		nclass_value = n_prior
+		# pclass_value = np.log(p_prior)
+		# nclass_value = np.log(n_prior)
+		pclass_value = 0
+		nclass_value = 0
+
+		currlabels = -1
+		if line[0] == "1":
+			currlabels = 1
+			line = line[2:]
+		else:
+			line = line[3:]
+
+		testlabels.extend([currlabels])
+
+		for i in line.split(' '):
+			word = i.split(':')[0]
+			count = i.split(':')[1]
+
+			if word in pclass:
+				pclass_value += (pclass[word]) * int(count)
+			if word in nclass:
+				nclass_value += (nclass[word]) * int(count)
+		
+		if pclass_value >= nclass_value:
+			testresult.extend([1])
+		else:
+			testresult.extend([-1])
+
+		if pclass_value >= nclass_value and currlabels == 1:
+			accuracy += 1
+		if nclass_value >= pclass_value and currlabels == -1:
+			accuracy += 1
+
+	accuracy /= len(content_testing)
+	return (accuracy * 100)
+
+def Build_Mult(content, pclass, nclass, laplace, total_unique):
+
+	pclass_total = 0
+	nclass_total = 0
+
+	for line in content:
+		if line[0] == "1":
+			line = line[2:]
+			for i in line.split(' '):
+				word = i.split(':')[0]
+				count = i.split(':')[1]
+
+				pclass_total += int(count)
+				if word not in pclass and count != 0:
+					pclass[word] = int(count)
+				else:
+					pclass[word] += int(count)
+				if word not in set(total_unique):
+					total_unique.extend([word])
+		else:
+			line = line[3:]
+			for i in line.split(' '):
+				word = i.split(':')[0]	
+				count = i.split(':')[1]
+
+				nclass_total += int(count)
+				if word not in nclass and count != 0:
+					nclass[word] = int(count)
+				else:
+					nclass[word] += int(count)
+
+				if word not in set(total_unique):
+					total_unique.extend([word])
+
+	for word in total_unique:
+		if word in pclass:
+			count = pclass[word]
+			count += laplace
+			count /= (pclass_total + laplace * len(total_unique))
+			pclass[word] = np.log10(count)
+		else:
+			count = laplace/(pclass_total + laplace * len(total_unique))
+			pclass[word] = np.log10(count)
+
+		if word in nclass:
+			count = nclass[word]
+			count += laplace
+			count /= (nclass_total + laplace * len(total_unique))
+			nclass[word] = np.log10(count)
+		else:
+			count = laplace/(nclass_total + laplace * len(total_unique))
+			nclass[word] = np.log10(count)
+
+#===========================================================================================================================
+def Classify_Bernoulli(content_testing, pclass, nclass, p_prior, n_prior, p_word_bank, n_word_bank, word_bank, laplace):
+	accuracy = 0
+	for line in content_testing:
+		remaining = deepcopy(word_bank)
+		pclass_value = np.log(p_prior)
+		nclass_value = np.log(n_prior)
 
 		testlabels = -1
 		if line[0] == "1":
@@ -82,140 +270,70 @@ def ClassifyFisher(content_testing, pclass, nclass, pclass_total, nclass_total, 
 			line = line[2:]
 		else:	
 			line = line[3:]
+
 		for i in line.split(' '):
 			word = i.split(':')[0]
-			count = i.split(':')[1]
+			if word not in word_bank:
+				continue
+			if word in remaining:
+				remaining.remove(word)
 
-			if word in pclass and pclass[word] != 0:
-				pclass_value *= pclass[word]
-			# if word not in pclass and word in nclass:
-			# 	nclass_value *= (nclass[word]/laplace)
-				# pclass_value *= np.abs(np.log(laplace/pclass_unique))
+			if word in pclass:
+				count = pclass[word]
+				count += laplace
+				count /= (440 + laplace * 2)
+				pclass_value += np.log10(count)
+			if word in nclass:
+				count = pclass[word]
+				count += laplace
+				count /= (438 + laplace * 2)
+				nclass_value += np.log10(count)
 
-			if word in nclass and nclass[word] != 0:
-				nclass_value *= nclass[word]
-			# if word not in nclass and word in pclass:
-			# 	pclass_value *= (pclass[word]/laplace)
-				# nclass_value *= np.abs(np.log(laplace/nclass_unique))
-		
-		if pclass_value > nclass_value and testlabels == 1:
+		for remain in remaining:
+			count = (pclass[remain] + laplace)/(440 + laplace * 2)
+			pclass_value += np.log(1-count)		
+			count = (nclass[remain] + laplace)/(438 + laplace * 2)
+			nclass_value += np.log(1-count)
+
+		if pclass_value >= nclass_value and testlabels == 1:
 			accuracy += 1
 
-		if nclass_value > pclass_value and testlabels == -1:
+		if nclass_value >= pclass_value and testlabels == -1:
 			accuracy += 1
 
 	accuracy /= len(content_testing)
 	return accuracy * 100
 
-def BuildDicFisher(content, pclass, nclass, pclass_total, nclass_total, pclass_unique, nclass_unique):
-	p_prior = 0
-	n_prior = 0
+def Build_Bernoulli(content, pclass, nclass, word_bank, p_word_bank, n_word_bank, laplace):
 	for line in content:
 		if line[0] == "1":
-			p_prior += 1
 			line = line[2:]
 			for i in line.split(' '):
 				word = i.split(':')[0]
 				count = i.split(':')[1]
-				pclass_total += int(count)
 				if word not in pclass and count != 0:
-					pclass_unique += 1
 					pclass[word] = 1
-				
+				else:
+					pclass[word] += 1
+
+				if word not in set(word_bank):
+					word_bank.extend([word])
 		else:
 			line = line[3:]
-			n_prior += 1
 			for i in line.split(' '):
 				word = i.split(':')[0]	
 				count = i.split(':')[1]
-				nclass_total += int(count)
 				if word not in nclass and count != 0:
-					nclass_unique += 1
 					nclass[word] = 1
-
-	for k in pclass:
-		count = pclass[k]
-		# count += laplace
-		count /= (pclass_unique)
-		pclass[k] = np.abs(np.log(count))
-
-	for k in nclass:
-		count = nclass[k]
-		# count += laplace
-		count /= (nclass_unique)
-		nclass[k] = np.abs(np.log(count))
-
-	
-	return p_prior/len(content), n_prior/len(content), pclass_unique, nclass_unique
-
-def Classify(content_testing, accuracy, pclass, nclass, pclass_total, nclass_total, pclass_unique, nclass_unique):
-	for line in content_testing:
-		pclass_value = 1
-		nclass_value = 1
-
-		testlabels = -1
-		if line[0] == "1":
-			testlabels = 1
-			line = line[2:]
-		else:
-			line = line[3:]
-		for i in line.split(' '):
-			word = i.split(':')[0]
-			count = i.split(':')[1]
-
-			if word in pclass:
-				pclass_value *= pclass[word]**int(count)
-			if word in nclass:
-				nclass_value *= nclass[word]**int(count)
-		
-		if pclass_value > nclass_value and testlabels == 1:
-			accuracy += 1
-
-		if nclass_value > pclass_value and testlabels == -1:
-			accuracy += 1
-
-	accuracy /= len(content_testing)
-	return (accuracy * 100)
-
-def BuildDic(content, pclass, nclass, pclass_total, nclass_total, pclass_unique, nclass_unique, laplace_const):
-	for line in content:
-		if line[0] == "1":
-			line = line[2:]
-			for i in line.split(' '):
-				word = i.split(':')[0]
-				count = i.split(':')[1]
-				pclass_total += int(count)
-				if word not in pclass and count != 0:
-					pclass_unique += 1
-					pclass[word] = int(count)
 				else:
-					pclass[word] += int(count)
-		else:
-			line = line[3:]
-			for i in line.split(' '):
-				word = i.split(':')[0]	
-				count = i.split(':')[1]
-				nclass_total += int(count)
-				if word not in nclass and count != 0:
-					nclass_unique += 1
-					nclass[word] = int(count)
-				else:
-					nclass[word] += int(count)
+					nclass[word] += 1
 
-	for k in pclass:
-		count = pclass[k]
-		count = (count + laplace_const)
-		count /= (pclass_total + pclass_unique * laplace_const)
-		pclass[k] = np.abs(np.log(count))
+				if word not in set(word_bank):
+					word_bank.extend([word])
 
-	for k in nclass:
-		count = nclass[k]
-		count = (count + laplace_const)
-		count /= (nclass_total + nclass_unique * laplace_const)
-		nclass[k] = np.abs(np.log(count))
-	
-
-	# import IPython
-	# IPython.embed()
-	# exit()
+	for word in word_bank:
+		if word not in pclass:
+			pclass[word] = 0
+		if word not in nclass:
+			nclass[word] = 0
 main()

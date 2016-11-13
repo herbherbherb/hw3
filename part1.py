@@ -2,6 +2,7 @@ import numpy as np
 from copy import copy, deepcopy
 import time
 from collections import defaultdict as setdefault
+# import matplotlib.pyplot as plt
 
 def main():
 #=======initialize================
@@ -42,7 +43,8 @@ def main():
 	with open('testimages') as f:
 		content = f.readlines()
 
-	poss_laplace = [0.1, 0.5, 1, 3, 5]
+	# poss_laplace = [0.1, 0.5, 1, 3, 5]
+	poss_laplace = [0.1]
 	for i in range(len(poss_laplace)):
 		start_time = time.time()
 		NavieClassify(content, NavieDic, testresult, trainingset, trainingprior, poss_laplace[i])
@@ -61,16 +63,16 @@ def report_digit_accuracy(testresult, testlabels):
 	digit = np.zeros((10))
 	correct_digit = np.zeros((10))
 
-	confusion = np.zeros((10, 10))
+	confusion = np.zeros((11, 11))
+	confusion[0, 1:] = np.arange(10)
+	confusion[1:, 0] = np.arange(10)
 
 	for i in range(len(testresult)):
 		digit[testlabels[i]] += 1
 		if testresult[i] == testlabels[i]:
 			correct_digit[testlabels[i]] += 1 
 
-		confusion[testlabels[i]][testresult[i]] += 1
-
-
+		confusion[testlabels[i]+1][testresult[i]+1] += 1
 
 	print("Classification Rate for Digits 0 ~ 9:")
 	for i in range(10):
@@ -81,14 +83,24 @@ def report_digit_accuracy(testresult, testlabels):
 	confusion_mtx(testresult, testlabels, digit, confusion)
 
 def confusion_mtx(testresult, testlabels, digit, confusion):
-	for i in range(10):
-		confusion[i, :] /= digit[i]
+	for i in range(1, 11):
+		confusion[i, 1:] /= digit[i-1]
 	print()
-	np.set_printoptions(precision=3)
+	np.set_printoptions(precision=2)
 	print(confusion)
 	print()
 
+	confusion = confusion[1:, 1:]
 
+	ratiolist = []
+	for i in range(20):
+		row = np.argmax(np.max(confusion, axis=1))
+		col = np.argmax(np.max(confusion, axis=0))
+		ratiolist.extend([(row, col)])
+		confusion[row, col] = 0
+	print(ratiolist)
+	ratiolist = ratiolist[10:]
+	print(ratiolist)
 
 def Building(content, traininglabels, NavieDic):
 	for i in range(int(len(content)/28)):
