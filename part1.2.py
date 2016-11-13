@@ -4,8 +4,8 @@ import time
 from collections import defaultdict as setdefault
 import itertools
 
-# Overlapping Grids
-alphabets = [' ', '#']
+# Overlapping Grid+s
+alphabets = [' ', '+', '#']
 keywords = itertools.product(alphabets, repeat = 9)
 comb_list = list(keywords)
 
@@ -44,17 +44,17 @@ def main():
 	with open('trainingimages') as f:
 		content_training = f.readlines()
 
-	for i in range(len(content_training)):
-		content_training[i] = ['#' if x=='+' else x for x in content_training[i]]
+	# for i in range(len(content_training)):
+	# 	content_training[i] = ['#' if x=='+' else x for x in content_training[i]]
 
 	with open('testimages') as f:
 		content_testing = f.readlines()
 
-	for i in range(len(content_testing)):
-		content_testing[i] = ['#' if x=='+' else x for x in content_testing[i]]
+	# for i in range(len(content_testing)):
+	# 	content_testing[i] = ['#' if x=='+' else x for x in content_testing[i]]
 
 	Building_group(content_training, traininglabels, NavieDic_group)
-	Building_group_prior(content_training, traininglabels, NavieDic_prior)
+	Building_group_prior(content_training, traininglabels, NavieDic_prior, NavieDic_group)
 
 	poss_laplace = [0.1, 0.2, 0.5, 1, 3, 10]
 	for i in range(len(poss_laplace)):
@@ -64,55 +64,32 @@ def main():
 		print("Accuracy (Laplace = ", poss_laplace[i], "): ", Accuracy_rate, "%")
 		testresult = []
 
-	# for i in range(len(testresult)):
-	# 	if testresult[i] == testresult_group[i]:
-	# 		continue
-	# 	else:
-	# 			testresult[i] = testresult_group[i]
+def Building_group_prior(content, traininglabels, dic, NavieDic):
+	for i in range(26):
+		for j in range(26):
+			loc = (i, j)
+			dic.setdefault(loc, {})
+			for label in range(10):
+				dic[loc][label] = 0
+				count = 0
+				for char in NavieDic[loc]:
+					count += NavieDic[loc][char][label]
+				dic[loc][label] = count
 
-
-	# correct_predicted = len([i for i, j in zip(traininglabels, testresult) if i == j])
-
-	# error = np.zeros((10))
-	# for i in range(len(traininglabels)):
-	# 	if(traininglabels[i] != testresult[i]):
-	# 		error[traininglabels[i]] += 1
-
-	# Accuracy_rate = (correct_predicted/len(traininglabels))*100
-	# end = time.time()
-	# print("Accuracy Rate: ", Accuracy_rate, "%")
-	# print(error)
-	# print("Time: ", end - start_time)
-
-	# correct_predicted = len([i for i, j in zip(testlabels, testresult) if i == j])
-
-	# error = np.zeros((10))
-	# for i in range(len(testlabels)):
-	# 	if(testlabels[i] != testresult[i]):
-	# 		error[testlabels[i]] += 1
-
-	# Accuracy_rate = (correct_predicted/len(testlabels))*100
-	# end = time.time()
-	# print("Accuracy Rate: ", Accuracy_rate, "%")
-	# print(error)
-	# print("Time: ", end - start_time)
-
-def Building_group_prior(content, traininglabels, NavieDic_prior):
-	class_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-	for i in range(int(len(content)/28)):
-		cur_label = traininglabels[i]
-		for row in range(i*28, (i+1)*28-2):
-			for col in range(26):
-				loc = (row%26, col) 			# location of that grid
+	# for i in range(int(len(content)/28)):
+	# 	cur_label = traininglabels[i]
+	# 	for row in range(i*28, (i+1)*28-2):
+	# 		for col in range(26):
+	# 			loc = (row%26, col) 			# location of that grid
 				
-				if loc not in NavieDic_prior:
-					NavieDic_prior.setdefault(loc, {})
-					for c in class_list:
-						NavieDic_prior[loc][c] = 0
-					NavieDic_prior[loc][cur_label] += 1
-				else:
-					NavieDic_prior[loc][cur_label] += 1
-			
+	# 			if loc not in NavieDic_prior:
+	# 				NavieDic_prior.setdefault(loc, {})
+	# 				for c in class_list:
+	# 					NavieDic_prior[loc][c] = 0
+	# 				NavieDic_prior[loc][cur_label] += 1
+	# 			else:
+	# 				NavieDic_prior[loc][cur_label] += 1
+
 def Building_group(content, traininglabels, NavieDic):
 	for i in range(int(len(content)/28)):
 		cur_label = traininglabels[i]

@@ -29,27 +29,28 @@ def main():
 	if arg == "1":
 		print("Multinomial Navie Bayes")
 		
-		# best_accuracy = 0
-		# best_laplace = 0
-		# c = [2]
-		# for i in c:
-		# 	testlabels = []
-		# 	testresult = []
-		# 	pclass = {}
-		# 	nclass = {}
-		# 	accuracy = 0
-		# 	Build_Mult(content_movie, pclass, nclass, i)
-		# 	accuracy = Classify_Mult(content_movie_testing, pclass, nclass, \
-		# 					movie_p_prior, movie_n_prior, testlabels, testresult, word_bank)
+		best_accuracy = 0
+		best_laplace = 0
+		c = [2]
+		for i in c:
+			testlabels = []
+			testresult = []
+			total_unique = []
+			pclass = {}
+			nclass = {}
+			accuracy = 0
+			Build_Mult(content_movie, pclass, nclass, i, total_unique)
+			accuracy = Classify_Mult(content_movie_testing, pclass, nclass, \
+							movie_p_prior, movie_n_prior, testlabels, testresult)
 			
-		# 	confusion_mtx(testlabels, testresult, pclass, nclass)
+			confusion_mtx(testlabels, testresult, pclass, nclass, total_unique)
 
-		# 	print("Accuracy ", i, ": ", accuracy, "%")
-		# 	if best_accuracy < accuracy:
-		# 		best_accuracy = accuracy
-		# 		best_laplace = i
-		# print("Best Laplace: ", best_laplace)
-		# print("Movie Reviews Accuracy: ", best_accuracy, "%")
+			print("Accuracy ", i, ": ", accuracy, "%")
+			if best_accuracy < accuracy:
+				best_accuracy = accuracy
+				best_laplace = i
+		print("Best Laplace: ", best_laplace)
+		print("Movie Reviews Accuracy: ", best_accuracy, "%")
 
 
 		best_accuracy = 0
@@ -161,8 +162,8 @@ def confusion_mtx(testlabels, testresult, pclass, nclass, word_bank):
 #=========================Top 10 Odd Ratio======================================
 	print("Top 10 Odd Ratio:")
 	odd_ratio = []
-	for i in range(len(word_bank)):
-		cur_word = word_bank[i]
+	for i in range(len(word_bank)):	
+		cur_word = n_word_bank[i]
 		ratio = pclass[cur_word] / nclass[cur_word]
 		odd_ratio.extend([(cur_word, ratio)])
 

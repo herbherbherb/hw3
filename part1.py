@@ -2,6 +2,7 @@ import numpy as np
 from copy import copy, deepcopy
 import time
 from collections import defaultdict as setdefault
+import operator
 # import matplotlib.pyplot as plt
 
 def main():
@@ -98,8 +99,13 @@ def confusion_mtx(testresult, testlabels, digit, confusion, NavieDic, trainingse
 		col = np.argmax(np.max(confusion, axis=0))
 		ratiolist.extend([(row, col)])
 		confusion[row, col] = 0
+	print(ratiolist)
 	ratiolist = ratiolist[10:]
-	print(ratiolist[4:])
+	print(ratiolist)
+	print(ratiolist[4])
+	import IPython
+	IPython.embed()
+	exit()
 
 	ratio(NavieDic, ratiolist, trainingset)
 
@@ -116,10 +122,7 @@ def ratio(NavieDic, ratiolist, trainingset):
 				probability = num1count/num2count
 				oddratiomtx[i, j] = probability
 		print(oddratiomtx)
-		import IPython
-		IPython.embed()
-		exit()
-
+	
 def Building(content, traininglabels, NavieDic):
 	for i in range(int(len(content)/28)):
 		cur_label = traininglabels[i]
