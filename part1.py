@@ -35,7 +35,7 @@ def main():
 
 	with open('trainingimages') as f:
 		content = f.readlines()
-		
+
 	Building(content, traininglabels, NavieDic)
 	end = time.time()
 	print("Training Time: ", end - start_time)
@@ -70,7 +70,7 @@ def report_digit_accuracy(testresult, testlabels, NavieDic, trainingset):
 	for i in range(len(testresult)):
 		digit[testlabels[i]] += 1
 		if testresult[i] == testlabels[i]:
-			correct_digit[testlabels[i]] += 1 
+			correct_digit[testlabels[i]] += 1
 
 		confusion[testlabels[i]+1][testresult[i]+1] += 1
 
@@ -81,12 +81,12 @@ def report_digit_accuracy(testresult, testlabels, NavieDic, trainingset):
 			print()
 	print()
 	confusion_mtx(testresult, testlabels, digit, confusion, NavieDic, trainingset)
-	
+
 def confusion_mtx(testresult, testlabels, digit, confusion, NavieDic, trainingset):
 	for i in range(1, 11):
 		confusion[i, 1:] /= digit[i-1]
 	print()
-	np.set_printoptions(precision=2)	
+	np.set_printoptions(precision=2)
 	print(confusion)
 	print()
 
@@ -98,14 +98,17 @@ def confusion_mtx(testresult, testlabels, digit, confusion, NavieDic, trainingse
 		col = np.argmax(np.max(confusion, axis=0))
 		ratiolist.extend([(row, col)])
 		confusion[row, col] = 0
-	ratiolist = ratiolist[10:]
-	print(ratiolist[4:])
+	ratiolist = ratiolist[10:14]
+	print(ratiolist[0:4])
 
 	ratio(NavieDic, ratiolist, trainingset)
 
 def ratio(NavieDic, ratiolist, trainingset):
 	for tup in ratiolist:
+		print(tup)
 		oddratiomtx = np.zeros((28, 28))
+		mat1 = np.zeros((28,28))
+		mat2 = np.zeros((28,28))
 		num1 = tup[0]
 		num2 = tup[1]
 		for i in range(28):
@@ -115,10 +118,37 @@ def ratio(NavieDic, ratiolist, trainingset):
 				num2count = (NavieDic[loc]['+'][num2] + NavieDic[loc]['#'][num2]+1)/trainingset[num2]
 				probability = num1count/num2count
 				oddratiomtx[i, j] = probability
-		print(oddratiomtx)
-		import IPython
-		IPython.embed()
-		exit()
+				mat1[i,j] = num1count
+				mat2[i,j] = num2count
+
+		heatmap(mat1, likelihood=True)
+		heatmap(mat2, likelihood=True)
+		heatmap(oddratiomtx)
+
+def heatmap(matrix, likelihood=False):
+	if likelihood:
+		partitions = [.25, .5, .75]
+	else:
+		nmatrix = sorted(matrix.flatten())
+		part_val = 28*28/5
+		partitions = [nmatrix[int(part_val)], nmatrix[int(part_val*2)]
+					, nmatrix[int(part_val*3)]]
+	# import IPython
+	# IPython.embed()
+	# exit()
+	for row in matrix:
+		for val in row:
+			if val < partitions[0]:
+				print('@', end='')
+			elif val > partitions[0] and val < partitions[1]:
+				print('+', end='')
+			elif val > partitions[1] and val < partitions[2]:
+				print('-', end='')
+			else:
+				print('.', end='')
+		print()
+	print()
+
 
 def Building(content, traininglabels, NavieDic):
 	for i in range(int(len(content)/28)):
@@ -136,7 +166,7 @@ def Building(content, traininglabels, NavieDic):
 				else:
 					NavieDic[loc][cur_char][cur_label] += 1
 
-# P(piror) = trainingprior[i] 
+# P(piror) = trainingprior[i]
 # Number of class[i] = trainingset[i]
 
 def NavieClassify(content, NavieDic, testresult, trainingset, trainingprior, laplace_const):
@@ -147,7 +177,7 @@ def NavieClassify(content, NavieDic, testresult, trainingset, trainingprior, lap
 			for col in range(28):
 				loc = (row%28, col) 			# location of that grid
 				cur_char = content[row][col]	# character in that grid
-			
+
 				classlist = NavieDic[loc][cur_char]
 
 				for i in range(10):
