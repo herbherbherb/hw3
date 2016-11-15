@@ -108,9 +108,7 @@ def Building_group_prior(content, traininglabels, NavieDic_prior):
 					NavieDic_prior[loc][cur_label] += 1
 				else:
 					NavieDic_prior[loc][cur_label] += 1
-	# import IPython
-	# IPython.embed()
-	# exit()			
+		
 def Building_group(content, traininglabels, NavieDic):
 	for i in range(int(len(content)/28)):
 		cur_label = traininglabels[i]

@@ -25,37 +25,37 @@ def main():
 		arg = sys.argv[1]
 	else:
 		arg = 0
-#=======================Using Multinomial Navie Bayes===========================================
+#=======================Using Multinomial Naive Bayes===========================================
 	if arg == "1":
-		print("Multinomial Navie Bayes")
+		print("Multinomial Naive Bayes")
 		
-		best_accuracy = 0
-		best_laplace = 0
-		c = [2]
-		for i in c:
-			testlabels = []
-			testresult = []
-			total_unique = []
-			pclass = {}
-			nclass = {}
-			accuracy = 0
-			Build_Mult(content_movie, pclass, nclass, i, total_unique)
-			accuracy = Classify_Mult(content_movie_testing, pclass, nclass, \
-							movie_p_prior, movie_n_prior, testlabels, testresult)
+		# best_accuracy = 0
+		# best_laplace = 0
+		# c = [2]
+		# for i in c:
+		# 	testlabels = []
+		# 	testresult = []
+		# 	total_unique = []
+		# 	pclass = {}
+		# 	nclass = {}
+		# 	accuracy = 0
+		# 	Build_Mult(content_movie, pclass, nclass, i, total_unique)
+		# 	accuracy = Classify_Mult(content_movie_testing, pclass, nclass, \
+		# 					movie_p_prior, movie_n_prior, testlabels, testresult)
 			
-			confusion_mtx(testlabels, testresult, pclass, nclass, total_unique)
+		# 	confusion_mtx(testlabels, testresult, pclass, nclass, total_unique)
 
-			print("Accuracy ", i, ": ", accuracy, "%")
-			if best_accuracy < accuracy:
-				best_accuracy = accuracy
-				best_laplace = i
-		print("Best Laplace: ", best_laplace)
-		print("Movie Reviews Accuracy: ", best_accuracy, "%")
+		# 	print("Accuracy ", i, ": ", accuracy, "%")
+		# 	# if best_accuracy < accuracy:
+		# 	# 	best_accuracy = accuracy
+		# 	# 	best_laplace = i
+		# # print("Best Laplace Value: ", best_laplace)
+		# # print("Movie Reviews Accuracy: ", best_accuracy, "%")
 
 
 		best_accuracy = 0
 		best_laplace = 0
-		c = [0.5, 1, 2, 5, 10, 100, 1000, 5000]
+		c = [100]
 		for i in c:
 			testlabels = []
 			testresult = []
@@ -70,56 +70,65 @@ def main():
 			confusion_mtx(testlabels, testresult, pclass, nclass, total_unique)
 
 			print("Accuracy ", i, ": ", accuracy, "%")
-			if best_accuracy < accuracy:
-				best_accuracy = accuracy
-				best_laplace = i
-		print("Best Laplace: ", best_laplace)
-		print("Binary Conversation Accuracy: ", best_accuracy, "%")
+		# 	if best_accuracy < accuracy:
+		# 		best_accuracy = accuracy
+		# 		best_laplace = i
+		# print("Best Laplace Value: ", best_laplace)
+		# print("Binary Conversation Accuracy: ", best_accuracy, "%")
 
-#=======================Using Bernoulli Navie Bayes==============================================
+#=======================Using Bernoulli Naive Bayes==============================================
 	if arg == "2":
-		print("Bernoulli Navie Bayes")
+		print("Bernoulli Naive Bayes")
 		
-		best_accuracy = 0
-		best_laplace = 0
-		c = [4.73, 4.76, 4.79]
-		for i in c:
-			pclass = {}
-			nclass = {}
-			accuracy = 0
-			word_bank = []
-			p_word_bank = []
-			n_word_bank = []
-			accuracy = 0
-			Build_Bernoulli(content_movie, pclass, nclass, word_bank, p_word_bank, n_word_bank, i)
-			accuracy = accuracy = Classify_Bernoulli(content_movie_testing, pclass, nclass, movie_p_prior, movie_n_prior, p_word_bank, n_word_bank, word_bank, i)
-		
-			print("Accuracy ", i, ": ", accuracy, "%")
-			if best_accuracy < accuracy:
-				best_accuracy = accuracy
-				best_laplace = i
-		print("Best Laplace: ", best_laplace)
-		print("Movie Reviews Accuracy: ", best_accuracy, "%")
-
-
-		best_accuracy = 0
-		best_laplace = 0
-		c = [4.0, 4.2, 4.5, 4.8, 5]
-		for i in c:
-			pclass = {}
-			nclass = {}
-			word_bank = []
-			p_word_bank = []
-			n_word_bank = []
-			Build_Bernoulli(content_topic, pclass, nclass, word_bank, p_word_bank, n_word_bank, 1)
-			accuracy = Classify_Bernoulli(content_topic_testing, pclass, nclass, movie_p_prior, movie_n_prior, p_word_bank, n_word_bank, word_bank, 1)
+		# best_accuracy = 0
+		# best_laplace = 0
+		# c = [3]
+		# for i in c:
+		# 	pclass = {}
+		# 	nclass = {}
+		# 	accuracy = 0
+		# 	word_bank = []
+		# 	p_word_bank = []
+		# 	n_word_bank = []
+		# 	testlabels = []
+		# 	testresult = []
+		# 	accuracy = 0
+		# 	Build_Bernoulli(content_movie, pclass, nclass, word_bank, p_word_bank, n_word_bank, i)
+		# 	accuracy = Classify_Bernoulli(content_movie_testing, pclass, nclass, \
+		# 				movie_p_prior, movie_n_prior, p_word_bank, n_word_bank, word_bank, i, testlabels, testresult)
 			
+		# 	confusion_mtx(testlabels, testresult, pclass, nclass, word_bank)
+		# 	print("Accuracy ", i, ": ", accuracy, "%")
+		# # 	if best_accuracy < accuracy:
+		# # 		best_accuracy = accuracy
+		# # 		best_laplace = i
+		# # print("Best Laplace Value: ", best_laplace)
+		# # print("Movie Reviews Accuracy: ", best_accuracy, "%")
+
+
+		best_accuracy = 0
+		best_laplace = 0
+		c = [0.1]
+		for i in c:
+			pclass = {}
+			nclass = {}
+			word_bank = []
+			p_word_bank = []
+			n_word_bank = []
+			testlabels = []
+			testresult = []
+			Build_Bernoulli(content_topic, pclass, nclass, word_bank, p_word_bank, n_word_bank, i)
+			accuracy = Classify_Bernoulli(content_topic_testing, pclass, nclass, \
+								movie_p_prior, movie_n_prior, p_word_bank, n_word_bank, word_bank, i, testlabels, testresult)
+			
+
+			confusion_mtx(testlabels, testresult, pclass, nclass, word_bank)
 			print("Accuracy ", i, ": ", accuracy, "%")
-			if best_accuracy < accuracy:
-				best_accuracy = accuracy
-				best_laplace = i
-		print("Best Laplace: ", best_laplace)
-		print("Binary Conversation Accuracy: ", best_accuracy, "%")
+		# 	if best_accuracy < accuracy:
+		# 		best_accuracy = accuracy
+		# 		best_laplace = i
+		# print("Best Laplace: ", best_laplace)
+		# print("Binary Conversation Accuracy: ", best_accuracy, "%")
 
 def confusion_mtx(testlabels, testresult, pclass, nclass, word_bank):
 #====================Confusion Matrix========================================
@@ -140,7 +149,10 @@ def confusion_mtx(testlabels, testresult, pclass, nclass, word_bank):
 
 	confusion[1:, 1:] /= len(testresult)
 	np.set_printoptions(precision=3)
+	print("Confusion Matrix:")
 	print(confusion)
+	print()
+
 #=====================Top 10 Liklihood Words===================================
 	sorted_p = sorted(pclass.items(), key=operator.itemgetter(1), reverse = True)
 	sorted_n = sorted(nclass.items(), key=operator.itemgetter(1), reverse = True)
@@ -163,9 +175,13 @@ def confusion_mtx(testlabels, testresult, pclass, nclass, word_bank):
 	print("Top 10 Odd Ratio:")
 	odd_ratio = []
 	for i in range(len(word_bank)):	
-		cur_word = n_word_bank[i]
-		ratio = pclass[cur_word] / nclass[cur_word]
-		odd_ratio.extend([(cur_word, ratio)])
+		cur_word = word_bank[i]
+		if nclass[cur_word] != 0:
+			ratio = pclass[cur_word] / nclass[cur_word]
+			odd_ratio.extend([(cur_word, ratio)])
+		# else:
+		# 	ratio = pclass[cur_word] / (nclass[cur_word]+1)
+		# 	odd_ratio.extend([(cur_word, ratio)])
 
 	odd_ratio = sorted(odd_ratio, key=lambda x: x[1], reverse= True)
 
@@ -174,6 +190,7 @@ def confusion_mtx(testlabels, testresult, pclass, nclass, word_bank):
 		print(odd_ratio[i], end = " ")
 		if i == 1 or i == 3 or i == 5 or i == 7 or i == 9:
 			print()
+	print()
 
 
 def Classify_Mult(content_testing, pclass, nclass, p_prior, n_prior, testlabels, testresult):
@@ -269,19 +286,21 @@ def Build_Mult(content, pclass, nclass, laplace, total_unique):
 			nclass[word] = np.log10(count)
 
 #===========================================================================================================================
-def Classify_Bernoulli(content_testing, pclass, nclass, p_prior, n_prior, p_word_bank, n_word_bank, word_bank, laplace):
+def Classify_Bernoulli(content_testing, pclass, nclass, p_prior, n_prior, p_word_bank, n_word_bank, word_bank, laplace, testlabels, testresult):
 	accuracy = 0
 	for line in content_testing:
 		remaining = deepcopy(word_bank)
 		pclass_value = np.log(p_prior)
 		nclass_value = np.log(n_prior)
 
-		testlabels = -1
+		currlabels = -1
 		if line[0] == "1":
-			testlabels = 1
+			currlabels = 1
 			line = line[2:]
 		else:	
 			line = line[3:]
+
+		testlabels.extend([currlabels])
 
 		for i in line.split(' '):
 			word = i.split(':')[0]
@@ -294,23 +313,28 @@ def Classify_Bernoulli(content_testing, pclass, nclass, p_prior, n_prior, p_word
 				count = pclass[word]
 				count += laplace
 				count /= (440 + laplace * 2)
-				pclass_value += np.log10(count)
+				pclass_value += np.log(count)   #log
 			if word in nclass:
-				count = pclass[word]
+				count = nclass[word]
 				count += laplace
-				count /= (438 + laplace * 2)
-				nclass_value += np.log10(count)
+				count /= (438 + laplace * 2)    
+				nclass_value += np.log(count)	#log
 
 		for remain in remaining:
 			count = (pclass[remain] + laplace)/(440 + laplace * 2)
-			pclass_value += np.log(1-count)		
+			pclass_value += np.log10(1-count)		#log10
 			count = (nclass[remain] + laplace)/(438 + laplace * 2)
-			nclass_value += np.log(1-count)
+			nclass_value += np.log10(1-count)		#log10
 
-		if pclass_value >= nclass_value and testlabels == 1:
+		if pclass_value >= nclass_value:
+			testresult.extend([1])
+		else:
+			testresult.extend([-1])
+
+		if pclass_value >= nclass_value and currlabels == 1:
 			accuracy += 1
 
-		if nclass_value >= pclass_value and testlabels == -1:
+		if nclass_value >= pclass_value and currlabels == -1:
 			accuracy += 1
 
 	accuracy /= len(content_testing)

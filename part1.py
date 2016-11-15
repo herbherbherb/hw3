@@ -42,23 +42,38 @@ def main():
 #===========Testing================================================
 	with open('testimages') as f:
 		content = f.readlines()
-
 	# poss_laplace = [0.1, 0.5, 1, 3, 5]
-	poss_laplace = [0.1]
+	poss_laplace = [0.5]
 	for i in range(len(poss_laplace)):
-		start_time = time.time()
-		NavieClassify(content, NavieDic, testresult, trainingset, trainingprior, poss_laplace[i])
+		pos_low = np.zeros(10)
+		pos_high = np.zeros(10)
 
+		start_time = time.time()
+		pos_high, pos_low = NavieClassify(content, NavieDic, testresult, trainingset, trainingprior, \
+					poss_laplace[i], pos_low, pos_high, testlabels)
+		
 		end = time.time()
+		highlow(content, pos_high, pos_low)
 		correct_predicted = len([i for i, j in zip(testlabels, testresult) if i == j])
 
 		Accuracy_rate = (correct_predicted/len(testlabels))*100
 		print("Total Accuracy (Laplace = ", poss_laplace[i], "): ", Accuracy_rate, "%")
 		report_digit_accuracy(testresult, testlabels, NavieDic, trainingset)
 		print("Testing Time: ", end - start_time)
-		print()
 		testresult = []
 
+def highlow(content, pos_high, pos_low):
+	f = open('output.txt','w')
+	for i in range(10):
+		low = int(pos_low[i])
+		high = int(pos_high[i])
+
+		for c in range(low*28, (low+1)*28):
+			f.write(content[c])
+		for c in range(high*28, (high+1)*28):
+			f.write(content[c])
+	f.close()
+	
 def report_digit_accuracy(testresult, testlabels, NavieDic, trainingset):
 	digit = np.zeros((10))
 	correct_digit = np.zeros((10))
@@ -99,9 +114,10 @@ def confusion_mtx(testresult, testlabels, digit, confusion, NavieDic, trainingse
 		ratiolist.extend([(row, col)])
 		confusion[row, col] = 0
 	ratiolist = ratiolist[10:14]
+	print("With Laplace = 0.5, Top 4 Pairs with Highest Odd_Ratio:")
 	print(ratiolist[0:4])
 
-	ratio(NavieDic, ratiolist, trainingset)
+	# ratio(NavieDic, ratiolist, trainingset)
 
 def ratio(NavieDic, ratiolist, trainingset):
 	for tup in ratiolist:
@@ -150,6 +166,8 @@ def heatmap(matrix, likelihood=False):
 	print()
 
 
+#=============================Binary Features=====================================
+
 def Building(content, traininglabels, NavieDic):
 	for i in range(int(len(content)/28)):
 		cur_label = traininglabels[i]
@@ -169,11 +187,17 @@ def Building(content, traininglabels, NavieDic):
 # P(piror) = trainingprior[i]
 # Number of class[i] = trainingset[i]
 
-def NavieClassify(content, NavieDic, testresult, trainingset, trainingprior, laplace_const):
-	for i in range(int(len(content)/28)):
+def NavieClassify(content, NavieDic, testresult, trainingset, trainingprior, laplace_const, pos_low, pos_high, testlabels):
 
+	pos_low_value = np.zeros(10)
+	pos_low_value[:] = np.inf
+	pos_high_value = np.zeros(10)
+	pos_high_value[:] = -np.inf
+
+	for c in range(int(len(content)/28)):
+		actual_label = testlabels[c]
 		posteriori = [np.log(trainingprior[i]) for i in range(10)]
-		for row in range(i*28, (i+1)*28):
+		for row in range(c*28, (c+1)*28):
 			for col in range(28):
 				loc = (row%28, col) 			# location of that grid
 				cur_char = content[row][col]	# character in that grid
@@ -188,7 +212,77 @@ def NavieClassify(content, NavieDic, testresult, trainingset, trainingprior, lap
 						total_num += laplace_const * 2
 
 					posteriori[i] += np.log(lkhood/total_num)
+		max_value = max(posteriori)
 		max_label = posteriori.index(max(posteriori))
-		testresult.extend([max_label])
 
+		if max_label == actual_label:
+			if(pos_low_value[max_label] > max_value):
+				pos_low_value[max_label] = max_value
+				pos_low[max_label] = c
+			if(pos_high_value[max_label] < max_value):
+				pos_high_value[max_label] = max_value
+				pos_high[max_label] = c
+		testresult.extend([max_label])
+		
+	return pos_high, pos_low
+
+#=============================Ternary Features=====================================
+
+# def Building(content, traininglabels, NavieDic):
+# 	for i in range(int(len(content)/28)):
+# 		cur_label = traininglabels[i]
+# 		for row in range(i*28, (i+1)*28):
+# 			for col in range(28):
+# 				loc = (row%28, col) 			# location of that grid
+# 				cur_char = content[row][col]	# character in that grid
+# 				if cur_char == '+':
+# 					cur_char = '#'
+# 				if loc not in NavieDic:			# not in the dictionary yet
+# 					NavieDic.setdefault(loc, {})
+# 					NavieDic[loc][' '] = np.zeros((10))
+# 					NavieDic[loc]['#'] = np.zeros((10))
+# 					NavieDic[loc][cur_char][cur_label] += 1
+# 				else:
+# 					NavieDic[loc][cur_char][cur_label] += 1
+
+# # P(piror) = trainingprior[i]
+# # Number of class[i] = trainingset[i]
+
+# def NavieClassify(content, NavieDic, testresult, trainingset, trainingprior, laplace_const, pos_low, pos_high):
+
+# 	pos_low_value = np.zeros(10)
+# 	pos_low_value[:] = np.inf
+# 	pos_high_value = np.zeros(10)
+# 	pos_high_value[:] = -np.inf
+
+# 	for c in range(int(len(content)/28)):
+# 		posteriori = [np.log(trainingprior[i]) for i in range(10)]
+# 		for row in range(c*28, (c+1)*28):
+# 			for col in range(28):
+# 				loc = (row%28, col) 			# location of that grid
+# 				cur_char = content[row][col]	# character in that grid
+# 				if cur_char == '+':
+# 					cur_char = '#'
+# 				classlist = NavieDic[loc][cur_char]
+
+# 				for i in range(10):
+# 					total_num = trainingset[i]
+# 					lkhood = classlist[i]
+# 					if lkhood == 0:
+# 						lkhood = laplace_const
+# 						total_num += laplace_const * 2
+
+# 					posteriori[i] += np.log(lkhood/total_num)
+# 		max_value = max(posteriori)
+# 		max_label = posteriori.index(max(posteriori))
+
+# 		if(pos_low_value[max_label] > max_value):
+# 			pos_low_value[max_label] = max_value
+# 			pos_low[max_label] = c
+# 		if(pos_high_value[max_label] < max_value):
+# 			pos_high_value[max_label] = max_value
+# 			pos_high[max_label] = c
+# 		testresult.extend([max_label])
+		
+# 	return pos_high, pos_low
 main()
